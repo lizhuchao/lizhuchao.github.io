@@ -1,5 +1,4 @@
 name: Update EPG
-
 on:
   schedule:
     - cron: '17 * * * *'
@@ -7,15 +6,12 @@ on:
   push:
     branches: [main]
     paths: ['.github/workflows/update-epg.yml']
-
 permissions:
   contents: write
   pages: write
-
 concurrency:
   group: epg-sync
   cancel-in-progress: false
-
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -28,7 +24,8 @@ jobs:
         run: |
           set -euo pipefail
           trap 'rm -f pp.xml.tmp' EXIT
-          curl --fail --location --retry 3 --retry-delay 10 --connect-timeout 20 --max-time 180 --proto '=https' --proto-redir '=https'             https://epg.112.114.xhttps://epg.112114.xyz/pp.xml   python3 - <<'PY'
+          curl --fail --location --retry 3 --retry-delay 10 --connect-timeout 20 --max-time 180 --proto '=https' --proto-redir '=https' https://epg.112114.xyz/pp.xml -o pp.xml.tmp
+          python3 - <<'PY'
           import os
           import xml.etree.ElementTree as ET
           path = 'pp.xml.tmp'
@@ -52,7 +49,6 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
-      # Bot pushes do not automatically trigger branch-based Pages builds.
       - name: Request existing Pages build
         env:
           GH_TOKEN: ${{ github.token }}
